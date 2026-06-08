@@ -1,59 +1,135 @@
-// Replace the generateQRCode function with this:
-async function generateQRCode() {
-    const cpi = document.getElementById('cpi').value;
-    const amount = document.getElementById('amount').value;
-    const reference = document.getElementById('reference').value;
-    const merchantName = document.getElementById('merchantName').value;
-    
-    const generateBtn = document.getElementById('generateBtn');
-    const statusDiv = document.getElementById('status');
-    const qrContainer = document.getElementById('qrContainer');
-    
-    // Validation
-    if (!cpi) {
-        showStatus('Please enter your phone number', 'error');
-        return;
-    }
-    
-    let formattedCpi = cpi;
-    if (cpi.startsWith('07') && cpi.length === 10) {
-        formattedCpi = '254' + cpi.substring(1);
-    } else if (cpi.startsWith('7') && cpi.length === 9) {
-        formattedCpi = '254' + cpi;
-    }
-    
-    // Show loading
-    generateBtn.innerHTML = 'Generating QR Code <span class="loading"></span>';
-    generateBtn.disabled = true;
-    qrContainer.classList.remove('show');
-    
-    try {
-        // Call your private backend (replace with your Vercel URL)
-        const response = await fetch('https://YOUR_BACKEND.vercel.app/api/generate-qr', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                merchantName: merchantName,
-                amount: parseInt(amount),
-                reference: reference,
-                cpi: formattedCpi
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success && result.qrCode) {
-            displayQRCode(result.qrCode);
-            showStatus(`✅ QR Code ready! Amount: KES ${amount}`, 'success');
-        } else {
-            throw new Error(result.error || 'Failed to generate QR');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-Pesa QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background: #f5f5f5;
         }
-        
-    } catch (error) {
-        console.error('Error:', error);
-        showStatus(`❌ Error: ${error.message}`, 'error');
-    } finally {
-        generateBtn.innerHTML = 'Generate QR Code';
-        generateBtn.disabled = false;
-    }
-}
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            padding: 12px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        button {
+            background: #00B207;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .qr-box {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+        .instruction {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💚 M-Pesa QR Code</h1>
+        <p>Create a QR code that opens M-Pesa directly</p>
+
+        <div class="form-group">
+            <label>Your Phone Number (to receive money)</label>
+            <input type="tel" id="phone" placeholder="254712345678" value="254712345678">
+        </div>
+
+        <div class="form-group">
+            <label>Amount (KES)</label>
+            <input type="number" id="amount" placeholder="Amount" value="100">
+        </div>
+
+        <div class="form-group">
+            <label>Reference/Invoice (Optional)</label>
+            <input type="text" id="reference" placeholder="INV-001" value="PAYMENT-001">
+        </div>
+
+        <div class="form-group">
+            <label>Your Business Name</label>
+            <input type="text" id="merchant" placeholder="Your Store Name" value="My Store">
+        </div>
+
+        <button onclick="generateQR()">Generate QR Code</button>
+
+        <div id="qrContainer" class="qr-box" style="display:none;">
+            <h3>Scan this QR with M-Pesa App:</h3>
+            <div id="qrcode"></div>
+            <p style="margin-top: 15px; color: #00B207; font-weight: bold;">
+                ⚡ Customer scans → M-Pesa opens → Enter PIN → You get paid!
+            </p>
+        </div>
+
+        <div class="instruction">
+            <strong>📱 How it works:</strong><br>
+            1. Customer scans this QR code with their phone camera<br>
+            2. M-Pesa app opens automatically<br>
+            3. Customer sees the amount and your business name<br>
+            4. Customer enters their PIN<br>
+            5. Money goes to YOUR phone instantly!<br>
+            <br>
+            <strong>✅ No backend needed! The QR code does everything.</strong>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        function generateQR() {
+            const phone = document.getElementById('phone').value;
+            const amount = document.getElementById('amount').value;
+            const reference = document.getElementById('reference').value;
+            const merchant = document.getElementById('merchant').value;
+            
+            // Format phone number to M-Pesa format
+            let formattedPhone = phone.replace(/\D/g, '');
+            if (formattedPhone.startsWith('0')) {
+                formattedPhone = '254' + formattedPhone.substring(1);
+            } else if (formattedPhone.startsWith('7')) {
+                formattedPhone = '254' + formattedPhone;
+            }
+            
+            // This is the exact format M-Pesa app reads
+            // Format: MERCHANT_NAME|REFERENCE|AMOUNT|RECEIVER_PHONE|BG
+            const qrText = `${merchant}|${reference}|${amount}|${formattedPhone}|BG`;
+            
+            // Generate QR code
+            const qrContainer = document.getElementById('qrContainer');
+            const qrDiv = document.getElementById('qrcode');
+            
+            qrDiv.innerHTML = '';
+            new QRCode(qrDiv, {
+                text: qrText,
+                width: 250,
+                height: 250
+            });
+            
+            qrContainer.style.display = 'block';
+            
+            // Also show as clickable link
+            alert(`QR Code Generated!\n\nWhen scanned, customer will pay KES ${amount} to ${formattedPhone}`);
+        }
+    </script>
+</body>
+</html>
