@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Send Money QR - Direct to Phone</title>
+    <title>Hovertech - Website Payment</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         * {
@@ -21,7 +21,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 500px;
+            max-width: 550px;
             width: 100%;
         }
         .qr-card {
@@ -31,15 +31,43 @@
             text-align: center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
         h1 {
             color: #333;
             font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .company {
+            color: #00B207;
+            font-size: 18px;
+            font-weight: bold;
             margin-bottom: 10px;
         }
         .subtitle {
             color: #666;
             margin-bottom: 30px;
             font-size: 14px;
+        }
+        .service-box {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .service-box h3 {
+            color: #00B207;
+            margin-bottom: 10px;
         }
         .amount-control {
             background: #f8f9fa;
@@ -72,7 +100,7 @@
             text-align: center;
             border: 2px solid #e0e0e0;
             border-radius: 15px;
-            width: 150px;
+            width: 180px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -84,14 +112,18 @@
             color: #555;
             font-weight: 500;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             font-size: 16px;
         }
-        button {
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00B207;
+        }
+        .generate-btn {
             width: 100%;
             padding: 16px;
             background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
@@ -103,7 +135,7 @@
             cursor: pointer;
             margin-top: 20px;
         }
-        button:active {
+        .generate-btn:active {
             transform: scale(0.98);
         }
         .qr-container {
@@ -134,6 +166,34 @@
             font-size: 14px;
         }
         .status.success { background: #d4edda; color: #155724; display: block; }
+        .status.error { background: #f8d7da; color: #721c24; display: block; }
+        .receipt-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            display: none;
+        }
+        .receipt-section.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .download-btn {
+            background: #00B207;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
         .info-box {
             background: #e8f5e9;
             padding: 15px;
@@ -142,83 +202,107 @@
             font-size: 13px;
             text-align: left;
         }
-        .info-box h4 {
-            color: #2e7d32;
-            margin-bottom: 8px;
-        }
-        .how-to {
-            background: #e3f2fd;
+        .thankyou {
+            margin-top: 20px;
             padding: 15px;
+            background: linear-gradient(135deg, #00B20720 0%, #00A1E020 100%);
             border-radius: 12px;
-            margin-top: 15px;
-            font-size: 13px;
-            text-align: left;
+            font-style: italic;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="qr-card">
-            <h1>💚 Send Money QR</h1>
-            <p class="subtitle">Scan to send money directly</p>
+            <div class="logo">💚</div>
+            <h1>Hovertech</h1>
+            <div class="company">Website Development & Maintenance</div>
+            <p class="subtitle">Secure M-Pesa Payment</p>
 
-            <div class="how-to">
-                <strong>📱 How to pay:</strong><br>
-                1. Open <strong>My Safaricom App</strong><br>
-                2. Tap <strong>M-PESA</strong><br>
-                3. Tap <strong>Scan QR</strong> (camera icon)<br>
-                4. Scan the QR code below<br>
-                5. Amount will be pre-filled<br>
-                6. Enter PIN and send!
+            <div class="service-box">
+                <h3>📋 Service Details:</h3>
+                <p><strong>Service:</strong> Website Building & Maintenance</p>
+                <p><strong>Provider:</strong> Hovertech Designs</p>
+                <p><strong>Support:</strong> 24/7 Technical Support</p>
             </div>
 
             <div class="amount-control">
-                <label>💰 Amount (KES)</label>
+                <label>💰 Amount to Pay (KES)</label>
                 <div class="amount-input-group">
-                    <button onclick="adjustAmount(-100)">-100</button>
-                    <input type="number" id="amount" value="100" min="10" step="100">
-                    <button onclick="adjustAmount(100)">+100</button>
+                    <button onclick="adjustAmount(-500)">-500</button>
+                    <input type="number" id="amount" value="5000" min="10" step="500">
+                    <button onclick="adjustAmount(500)">+500</button>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>📝 Reference (Optional)</label>
-                <input type="text" id="reference" placeholder="e.g., Order #123">
+                <label>👤 Your Full Name</label>
+                <input type="text" id="customerName" placeholder="Enter your full name" required>
             </div>
 
-            <button onclick="generateQRCode()" id="generateBtn">
-                Generate QR Code
+            <div class="form-group">
+                <label>📧 Email (for receipt)</label>
+                <input type="email" id="customerEmail" placeholder="you@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label>📞 M-Pesa Phone Number</label>
+                <input type="tel" id="phoneNumber" placeholder="0712345678" required>
+                <small style="color:#888;">You'll pay from this number</small>
+            </div>
+
+            <button class="generate-btn" onclick="generateQRCode()" id="generateBtn">
+                Generate Payment QR Code
             </button>
 
             <div class="qr-container" id="qrContainer">
                 <div id="qrcode"></div>
                 <p style="color: #00B207; font-weight: bold; margin-top: 10px;">
-                    ✅ Scan with M-PESA App
+                    ✅ Scan with M-PESA App (Send Money)
                 </p>
-                <p style="color: #666; font-size: 12px; margin-top: 5px;">
-                    Money goes to: <strong id="displayNumber">Loading...</strong>
+                <p style="color: #666; font-size: 12px;">
+                    Amount will be pre-filled: KES <span id="qrAmount">0</span>
                 </p>
             </div>
 
             <div id="status" class="status"></div>
 
+            <div class="receipt-section" id="receiptSection">
+                <h3>🧾 Payment Receipt</h3>
+                <div id="receiptContent"></div>
+                <button class="download-btn" onclick="downloadReceipt()">📥 Download Receipt (PDF)</button>
+            </div>
+
+            <div class="thankyou" id="thankyouMsg" style="display: none;">
+                🙏 <strong>Thank you for choosing Hovertech!</strong><br>
+                Your website will be ready soon. We'll send updates to your email.
+            </div>
+
             <div class="info-box">
-                <h4>💡 Alternative Method:</h4>
-                <p>Open M-PESA → Send Money → Enter <strong id="manualNumber">Loading...</strong> → Amount → PIN</p>
+                <h4>📌 How to pay:</h4>
+                <ol style="margin-left: 20px;">
+                    <li>Enter your details above</li>
+                    <li>Click "Generate Payment QR Code"</li>
+                    <li>Open M-PESA → Send Money → Scan QR</li>
+                    <li>Amount is pre-filled - Enter your PIN</li>
+                    <li>Download your receipt</li>
+                </ol>
+                <br>
+                <p><strong>📞 Need help?</strong> Contact: support@hovertech.com</p>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // YOUR PRIVATE NUMBER - CHANGE THIS!
+        // HOVERTECH SETTINGS - CHANGE THIS!
         // ============================================
-        const YOUR_NUMBER = "254716081217";  // REPLACE WITH YOUR M-PESA NUMBER
-        const YOUR_NAME = "Hovertech designs";  // Your name that appears
+        const HOVERTECH_NUMBER = "254716081217";  // REPLACE WITH HOVERTECH'S M-PESA NUMBER
+        const COMPANY_NAME = "Hovertech Designs";
+        const SERVICE = "Website Building & Maintenance";
         
-        // Display your number
-        document.getElementById('displayNumber').innerText = YOUR_NUMBER;
-        document.getElementById('manualNumber').innerText = YOUR_NUMBER;
+        let currentTransaction = null;
         
         function adjustAmount(change) {
             const amountInput = document.getElementById('amount');
@@ -227,30 +311,71 @@
             if (newAmount > 150000) newAmount = 150000;
             amountInput.value = newAmount;
             document.getElementById('qrContainer').classList.remove('show');
+            document.getElementById('receiptSection').classList.remove('show');
         }
 
         function generateQRCode() {
             const amount = document.getElementById('amount').value;
-            let reference = document.getElementById('reference').value;
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
             const generateBtn = document.getElementById('generateBtn');
             const qrContainer = document.getElementById('qrContainer');
             const statusDiv = document.getElementById('status');
             
-            if (!reference) {
-                reference = `PAY${Date.now()}`;
+            // Validate
+            if (!customerName) {
+                showStatus('❌ Please enter your name', 'error');
+                return;
             }
+            if (!customerEmail) {
+                showStatus('❌ Please enter your email', 'error');
+                return;
+            }
+            if (!phoneNumber) {
+                showStatus('❌ Please enter your M-Pesa number', 'error');
+                return;
+            }
+            
+            if (amount < 10) {
+                showStatus('Amount must be at least KES 10', 'error');
+                return;
+            }
+            
+            // Format phone number
+            let formattedPhone = phoneNumber.replace(/\D/g, '');
+            if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.substring(1);
+            else if (formattedPhone.startsWith('7')) formattedPhone = '254' + formattedPhone;
             
             generateBtn.innerHTML = 'Generating QR Code...';
             generateBtn.disabled = true;
             qrContainer.classList.remove('show');
+            document.getElementById('receiptSection').classList.remove('show');
             statusDiv.style.display = 'none';
             
-            // FORMAT FOR SEND MONEY (SM = Send Money)
-            // This tells M-PESA to use Send Money instead of Lipa Na M-PESA
-            const qrData = `${YOUR_NUMBER}|${amount}|${reference}|${YOUR_NAME}|SM`;
+            // Create transaction record
+            currentTransaction = {
+                transactionId: `HVT-${Date.now()}`,
+                date: new Date().toLocaleString(),
+                customerName: customerName,
+                customerEmail: customerEmail,
+                customerPhone: formattedPhone,
+                amount: parseInt(amount),
+                service: SERVICE,
+                company: COMPANY_NAME,
+                status: 'pending'
+            };
+            
+            // Update QR amount display
+            document.getElementById('qrAmount').innerText = amount;
+            
+            // Format for Send Money (SM)
+            // Phone|Amount|Reference|Name|SM
+            const reference = `HVT${Date.now()}`;
+            const qrData = `${HOVERTECH_NUMBER}|${amount}|${reference}|${COMPANY_NAME}|SM`;
             
             console.log('QR Data:', qrData);
-            console.log('Send Money to:', YOUR_NUMBER);
+            console.log('Send Money to:', HOVERTECH_NUMBER);
             console.log('Amount:', amount);
             
             const qrDiv = document.getElementById('qrcode');
@@ -267,17 +392,210 @@
             
             qrContainer.classList.add('show');
             
-            statusDiv.textContent = `✅ QR Ready! Customer sends KES ${amount} directly to your number`;
-            statusDiv.className = 'status success';
-            statusDiv.style.display = 'block';
+            showStatus(`✅ QR Code ready! Send KES ${amount} to ${COMPANY_NAME} via M-PESA Send Money`, 'success');
             
-            generateBtn.innerHTML = 'Generate QR Code';
+            generateBtn.innerHTML = 'Generate Payment QR Code';
             generateBtn.disabled = false;
+            
+            // Show receipt generation option after payment
+            setTimeout(() => {
+                showReceiptOption();
+            }, 2000);
+        }
+        
+        function showReceiptOption() {
+            const receiptSection = document.getElementById('receiptSection');
+            const thankyouMsg = document.getElementById('thankyouMsg');
+            
+            if (currentTransaction) {
+                const receiptContent = document.getElementById('receiptContent');
+                receiptContent.innerHTML = `
+                    <div style="text-align: left; padding: 10px;">
+                        <p><strong>🧾 HOVERTECH RECEIPT</strong></p>
+                        <hr>
+                        <p><strong>Receipt No:</strong> ${currentTransaction.transactionId}</p>
+                        <p><strong>Date:</strong> ${currentTransaction.date}</p>
+                        <p><strong>Customer:</strong> ${currentTransaction.customerName}</p>
+                        <p><strong>Email:</strong> ${currentTransaction.customerEmail}</p>
+                        <p><strong>Phone:</strong> ${currentTransaction.customerPhone}</p>
+                        <hr>
+                        <p><strong>Service:</strong> ${currentTransaction.service}</p>
+                        <p><strong>Amount Paid:</strong> KES ${currentTransaction.amount.toLocaleString()}</p>
+                        <hr>
+                        <p><strong>Paid to:</strong> ${COMPANY_NAME}</p>
+                        <p><strong>Payment Method:</strong> M-PESA Send Money</p>
+                        <hr>
+                        <p style="text-align: center; color: #00B207;">✓ Payment Confirmed</p>
+                        <p style="text-align: center; font-size: 12px; margin-top: 10px;">
+                            Thank you for choosing Hovertech!<br>
+                            Your website project will commence immediately.
+                        </p>
+                    </div>
+                `;
+                receiptSection.classList.add('show');
+                thankyouMsg.style.display = 'block';
+            }
+        }
+        
+        function downloadReceipt() {
+            if (!currentTransaction) return;
+            
+            const receiptHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hovertech Payment Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .receipt {
+            border: 2px solid #00B207;
+            border-radius: 15px;
+            padding: 30px;
+            background: white;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #00B207;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 48px;
+        }
+        h1 {
+            color: #00B207;
+            margin: 10px 0;
+        }
+        .receipt-no {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .details {
+            margin: 20px 0;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #00B207;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 2px solid #00B207;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        .thankyou {
+            text-align: center;
+            color: #00B207;
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <div class="logo">💚</div>
+            <h1>HOVERTECH DESIGNS</h1>
+            <p>Professional Website Solutions</p>
+        </div>
+        
+        <div class="receipt-no">
+            <strong>RECEIPT NO: ${currentTransaction.transactionId}</strong>
+        </div>
+        
+        <div class="details">
+            <div class="row">
+                <span><strong>Date:</strong></span>
+                <span>${currentTransaction.date}</span>
+            </div>
+            <div class="row">
+                <span><strong>Customer Name:</strong></span>
+                <span>${currentTransaction.customerName}</span>
+            </div>
+            <div class="row">
+                <span><strong>Email:</strong></span>
+                <span>${currentTransaction.customerEmail}</span>
+            </div>
+            <div class="row">
+                <span><strong>Phone:</strong></span>
+                <span>${currentTransaction.customerPhone}</span>
+            </div>
+            <div class="row">
+                <span><strong>Service:</strong></span>
+                <span>${currentTransaction.service}</span>
+            </div>
+            <div class="row total">
+                <span><strong>Amount Paid:</strong></span>
+                <span><strong>KES ${currentTransaction.amount.toLocaleString()}</strong></span>
+            </div>
+        </div>
+        
+        <div class="thankyou">
+            🙏 Thank you for choosing Hovertech!<br>
+            Your website project will be completed with excellence.
+        </div>
+        
+        <div class="footer">
+            Hovertech Designs - Website Development & Maintenance<br>
+            24/7 Support: support@hovertech.com<br>
+            This is a computer generated receipt - no signature required
+        </div>
+    </div>
+</body>
+</html>
+            `;
+            
+            const blob = new Blob([receiptHTML], { type: 'text/html' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = `Hovertech_Receipt_${currentTransaction.transactionId}.html`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showStatus('📥 Receipt downloaded! Check your downloads folder.', 'success');
+        }
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
             
             setTimeout(() => {
                 statusDiv.style.display = 'none';
-            }, 5000);
+            }, 8000);
         }
+        
+        // Auto-format phone number
+        document.getElementById('phoneNumber').addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 12) value = value.slice(0, 12);
+            this.value = value;
+        });
     </script>
 </body>
 </html>
