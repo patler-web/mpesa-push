@@ -3,26 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M-Pesa Dynamic QR - Scan & Pay</title>
+    <title>M-Pesa QR - Pay to Phone Number</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 550px;
-            margin: 0 auto;
-        }
-
+        .container { max-width: 550px; margin: 0 auto; }
         .qr-card {
             background: white;
             border-radius: 30px;
@@ -30,32 +20,10 @@
             text-align: center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-
-        h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
+        h1 { color: #333; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
         input, select {
             width: 100%;
             padding: 12px 15px;
@@ -63,12 +31,7 @@
             border-radius: 10px;
             font-size: 16px;
         }
-
-        input:focus {
-            outline: none;
-            border-color: #00B207;
-        }
-
+        input:focus { outline: none; border-color: #00B207; }
         button {
             width: 100%;
             padding: 15px;
@@ -81,12 +44,7 @@
             cursor: pointer;
             margin-top: 10px;
         }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
         .qr-container {
             margin: 20px 0;
             padding: 20px;
@@ -94,17 +52,30 @@
             border-radius: 15px;
             display: none;
         }
-
-        .qr-container.show {
-            display: block;
+        .qr-container.show { display: block; }
+        #qrcode { display: flex; justify-content: center; margin: 20px 0; }
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
         }
-
-        #qrcode {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
+        .status.success { background: #d4edda; color: #155724; display: block; }
+        .status.error { background: #f8d7da; color: #721c24; display: block; }
+        .info-text {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 13px;
+            text-align: left;
         }
-
+        .test-credentials {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            margin-bottom: 20px;
+        }
         .loading {
             display: inline-block;
             width: 20px;
@@ -115,58 +86,19 @@
             animation: spin 0.8s linear infinite;
             margin-left: 10px;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .status {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            display: block;
-        }
-
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
-
-        .info-text {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 13px;
-            text-align: left;
-        }
-
-        .merchant-info {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            font-size: 14px;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="qr-card">
             <h1>💚 M-PESA Dynamic QR</h1>
-            <p class="subtitle">Generate QR code for instant payment</p>
+            <p class="subtitle">Scan & Pay - No Shortcode Required!</p>
 
-            <div class="merchant-info">
-                <div>🏪 Merchant: Your Store Name</div>
-                <div>🏧 Till/Paybill: 123456</div>
+            <div class="form-group">
+                <label>📞 Receive Payments To (CPI)</label>
+                <input type="tel" id="cpi" placeholder="254712345678" value="254700000000">
+                <small>Your M-Pesa phone number - payments go here!</small>
             </div>
 
             <div class="form-group">
@@ -175,19 +107,22 @@
             </div>
 
             <div class="form-group">
-                <label>📝 Invoice/Reference Number</label>
+                <label>🏷️ Transaction Type</label>
+                <select id="trxCode">
+                    <option value="BG">Buy Goods (Till)</option>
+                    <option value="PB">Pay Bill</option>
+                    <option value="SM">Send Money (to phone)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>📝 Invoice/Reference</label>
                 <input type="text" id="reference" placeholder="e.g., INV-001 or Customer Name">
             </div>
 
             <div class="form-group">
-                <label>🏷️ Transaction Type</label>
-                <select id="trxCode">
-                    <option value="BGC">Buy Goods (Till Number)</option>
-                    <option value="BG">Bill Pay (Paybill)</option>
-                    <option value="WA">Withdrawal</option>
-                    <option value="PB">Paybill</option>
-                    <option value="SM">Send Money</option>
-                </select>
+                <label>🏪 Merchant Name</label>
+                <input type="text" id="merchantName" placeholder="Your Business Name" value="My Store">
             </div>
 
             <button onclick="generateQRCode()" id="generateBtn">
@@ -203,26 +138,35 @@
 
             <div id="status" class="status"></div>
 
+            <div class="info-text test-credentials">
+                <strong>🔑 No Shortcode? No Problem!</strong><br>
+                • Use your <strong>personal phone number</strong> as CPI<br>
+                • Or use test shortcode: <strong>174379</strong><br>
+                • Get free API keys from <a href="https://developer.safaricom.co.ke" target="_blank">developer.safaricom.co.ke</a>
+            </div>
+
             <div class="info-text">
                 <strong>📌 How it works:</strong><br>
-                1. Enter amount and reference<br>
-                2. Click "Generate QR Code"<br>
-                3. Scan the QR with M-PESA App<br>
-                4. Confirm and enter PIN on your phone<br>
-                5. Payment completes instantly!
+                1. Enter your phone number (where you want to receive money)<br>
+                2. Set amount and generate QR code<br>
+                3. Customer scans QR with M-PESA App<br>
+                4. They pay - money goes to YOUR phone!<br>
+                5. No shortcode or till number needed 🎉
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
-        // Your M-Pesa API credentials (from Safaricom Developer Portal)
-        // IMPORTANT: In production, move these to a backend!
+        // ============================================
+        // GET YOUR FREE API CREDENTIALS FROM:
+        // https://developer.safaricom.co.ke
+        // Then paste them below:
+        // ============================================
         const MPESA_CONFIG = {
-            consumerKey: 'YOUR_CONSUMER_KEY_HERE',  // Get from developer.safaricom.co.ke
-            consumerSecret: 'YOUR_CONSUMER_SECRET_HERE',
-            shortCode: '174379',  // Use your actual shortcode/till number
-            environment: 'sandbox'  // 'sandbox' or 'production'
+            consumerKey: 'hlsjOGhFGtbYahJA4Uwi4djQRAGOvAhwPI4JkkDHzedRWOKA',     // Get from Developer Portal
+            consumerSecret: 'd0GgjQJ0n8K4zczdMgR8ZhiqUmAjy3kBLGoCxHKfyOGVSWz8T7zIcTYhbGWrNR3M', // Get from Developer Portal
+            environment: 'sandbox'  // Use 'sandbox' for testing, 'production' for live
         };
 
         async function getAccessToken() {
@@ -239,19 +183,23 @@
             if (data.access_token) {
                 return data.access_token;
             } else {
-                throw new Error('Failed to get access token');
+                throw new Error(data.errorMessage || 'Failed to get access token');
             }
         }
 
-        async function generateDynamicQR(amount, reference, trxCode) {
+        async function generateDynamicQR(merchantName, amount, reference, trxCode, cpi) {
             const token = await getAccessToken();
             
             const requestBody = {
-                MerchantName: "Your Store Name",
+                MerchantName: merchantName || "My Store",
                 RefNo: reference || `INV-${Date.now()}`,
                 Amount: parseInt(amount),
-                TrxCode: trxCode || "BGC"
+                TrxCode: trxCode || "BG",
+                CPI: cpi,  // Your phone number or shortcode!
+                Size: "300"
             };
+            
+            console.log('Request Body:', requestBody);
             
             const response = await fetch('https://sandbox.safaricom.co.ke/mpesa/qrcode/v1/generate', {
                 method: 'POST',
@@ -267,14 +215,22 @@
         }
 
         async function generateQRCode() {
+            const cpi = document.getElementById('cpi').value;
             const amount = document.getElementById('amount').value;
-            const reference = document.getElementById('reference').value;
             const trxCode = document.getElementById('trxCode').value;
+            const reference = document.getElementById('reference').value;
+            const merchantName = document.getElementById('merchantName').value;
+            
             const generateBtn = document.getElementById('generateBtn');
             const statusDiv = document.getElementById('status');
             const qrContainer = document.getElementById('qrContainer');
             
             // Validate
+            if (!cpi) {
+                showStatus('Please enter a phone number or shortcode to receive payments', 'error');
+                return;
+            }
+            
             if (amount < 10) {
                 showStatus('Amount must be at least KES 10', 'error');
                 return;
@@ -287,13 +243,12 @@
             statusDiv.style.display = 'none';
             
             try {
-                // For demo/testing without credentials
+                // Demo mode if no credentials
                 if (MPESA_CONFIG.consumerKey === 'YOUR_CONSUMER_KEY_HERE') {
-                    // Demo mode
                     setTimeout(() => {
-                        const demoQRData = `LIPA NA M-PESA: Your Store Name|${reference || 'INV-' + Date.now()}|${amount}|123456|${trxCode}`;
+                        const demoQRData = `LIPA NA M-PESA: ${merchantName}|${reference || 'INV-' + Date.now()}|${amount}|${cpi}|${trxCode}`;
                         displayQRCode(demoQRData);
-                        showStatus(`✅ Demo Mode: QR generated for KES ${amount}. Get real credentials from Safaricom Developer Portal.`, 'success');
+                        showStatus(`✅ DEMO MODE: QR generated for KES ${amount}. Get free API keys from developer.safaricom.co.ke to go live!`, 'success');
                         generateBtn.innerHTML = 'Generate QR Code';
                         generateBtn.disabled = false;
                     }, 1000);
@@ -301,21 +256,21 @@
                 }
                 
                 // Real API call
-                const result = await generateDynamicQR(amount, reference, trxCode);
+                const result = await generateDynamicQR(merchantName, amount, reference, trxCode, cpi);
                 
                 if (result.QRCode) {
                     displayQRCode(result.QRCode);
-                    showStatus(`✅ QR Code generated successfully! Amount: KES ${amount}`, 'success');
-                } else if (result.ResponseCode === '0') {
-                    displayQRCode(result.QRCode || result.QRData);
-                    showStatus(`✅ Success! Scan QR with M-PESA app`, 'success');
+                    showStatus(`✅ QR Code generated! Amount: KES ${amount} will be sent to ${cpi}`, 'success');
+                } else if (result.ResponseCode === '00' || result.ResponseCode === '0') {
+                    displayQRCode(result.QRCode);
+                    showStatus(`✅ Success! Customer scans to pay KES ${amount}`, 'success');
                 } else {
                     throw new Error(result.ResponseDescription || result.errorMessage || 'Failed to generate QR');
                 }
                 
             } catch (error) {
                 console.error('Error:', error);
-                showStatus(`❌ Error: ${error.message}. Check your API credentials.`, 'error');
+                showStatus(`❌ Error: ${error.message}`, 'error');
             } finally {
                 generateBtn.innerHTML = 'Generate QR Code';
                 generateBtn.disabled = false;
@@ -326,10 +281,8 @@
             const qrContainer = document.getElementById('qrContainer');
             const qrDiv = document.getElementById('qrcode');
             
-            // Clear previous QR
             qrDiv.innerHTML = '';
             
-            // Generate QR code
             new QRCode(qrDiv, {
                 text: qrData,
                 width: 250,
