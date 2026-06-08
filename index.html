@@ -2,56 +2,177 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M-Pesa Payment Portal</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>QR Code Payment - Scan & Pay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .qr-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #qrcode {
+            width: 250px;
+            height: 250px;
+            margin: 0 auto;
+        }
+
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            background: white;
+            margin: 0 auto;
+        }
+
+        .instruction {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f0ff;
+            border-radius: 15px;
+        }
+
+        .instruction p {
+            color: #555;
+            font-size: 14px;
+        }
+
+        .instruction strong {
+            color: #667eea;
+        }
+
+        .payment-link {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .payment-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .amount-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .qr-card {
+                padding: 30px 20px;
+            }
+            
+            #qrcode {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="payment-card">
-            <h1>💰 Payment Portal</h1>
-            <p>Enter your details to receive payment prompt</p>
+        <div class="qr-card">
+            <h1>📱 Scan to Pay</h1>
+            <p class="subtitle">Scan this QR code with your phone camera</p>
             
-            <form id="paymentForm">
-                <div class="form-group">
-                    <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" name="fullName" required placeholder="John Doe">
-                </div>
-
-                <div class="form-group">
-                    <label for="phoneNumber">M-Pesa Phone Number</label>
-                    <input type="tel" id="phoneNumber" name="phoneNumber" required 
-                           placeholder="0712345678 or 254712345678">
-                    <small>You'll receive a prompt on this number</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="invoiceNumber">Invoice Number</label>
-                    <input type="text" id="invoiceNumber" name="invoiceNumber" required 
-                           placeholder="INV-2024-001">
-                </div>
-
-                <div class="form-group">
-                    <label for="amount">Amount (KES)</label>
-                    <input type="number" id="amount" name="amount" required 
-                           placeholder="1000" min="10" step="1">
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email (Optional)</label>
-                    <input type="email" id="email" name="email" placeholder="you@example.com">
-                </div>
-
-                <button type="submit" id="payButton">
-                    <span>💳 Pay Now</span>
-                    <div class="spinner hidden"></div>
-                </button>
-            </form>
-
-            <div id="statusMessage" class="status-message hidden"></div>
+            <div class="amount-badge" id="amountDisplay">
+                KES 1,000
+            </div>
+            
+            <div class="qr-container">
+                <div id="qrcode" class="qr-code"></div>
+            </div>
+            
+            <div class="instruction">
+                <p>📸 <strong>How to pay:</strong></p>
+                <p>1. Scan QR code with your phone camera<br>
+                2. Enter your name and phone number<br>
+                3. You'll receive an M-Pesa prompt<br>
+                4. Enter your PIN to complete payment</p>
+            </div>
+            
+            <div class="payment-link">
+                <a href="#" id="directLink">🔗 Or click here to pay on this device</a>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        // Get the current page URL for QR code
+        const currentUrl = window.location.href;
+        const paymentPageUrl = currentUrl.includes('index.html') 
+            ? currentUrl.replace('index.html', 'payment.html')
+            : currentUrl + 'payment.html';
+        
+        // Generate QR code that points to the payment page
+        new QRCode(document.getElementById("qrcode"), {
+            text: paymentPageUrl,
+            width: 250,
+            height: 250,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Update the direct link
+        document.getElementById('directLink').href = paymentPageUrl;
+        
+        // Optional: Add amount parameter if needed
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount');
+        if (amount) {
+            document.getElementById('amountDisplay').innerHTML = `KES ${parseInt(amount).toLocaleString()}`;
+        }
+    </script>
 </body>
 </html>
