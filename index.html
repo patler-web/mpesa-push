@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>My Safaricom App - Direct Payment QR</title>
+    <title>Send Money QR - Direct to Phone</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         * {
@@ -159,17 +159,17 @@
 <body>
     <div class="container">
         <div class="qr-card">
-            <h1>💚 My Safaricom Payment</h1>
-            <p class="subtitle">Scan QR code to pay directly</p>
+            <h1>💚 Send Money QR</h1>
+            <p class="subtitle">Scan to send money directly</p>
 
             <div class="how-to">
-                <strong>📱 How to pay with My Safaricom App:</strong><br>
+                <strong>📱 How to pay:</strong><br>
                 1. Open <strong>My Safaricom App</strong><br>
-                2. Tap <strong>"M-PESA"</strong> → <strong>"Lipa Na M-PESA"</strong><br>
-                3. Tap <strong>"Scan QR Code"</strong><br>
+                2. Tap <strong>M-PESA</strong><br>
+                3. Tap <strong>Scan QR</strong> (camera icon)<br>
                 4. Scan the QR code below<br>
-                5. Confirm amount and enter PIN<br>
-                6. Payment complete!
+                5. Amount will be pre-filled<br>
+                6. Enter PIN and send!
             </div>
 
             <div class="amount-control">
@@ -193,18 +193,17 @@
             <div class="qr-container" id="qrContainer">
                 <div id="qrcode"></div>
                 <p style="color: #00B207; font-weight: bold; margin-top: 10px;">
-                    ✅ Scan with My Safaricom App
+                    ✅ Scan with M-PESA App
                 </p>
                 <p style="color: #666; font-size: 12px; margin-top: 5px;">
-                    Payment goes directly to: <strong id="displayNumber">Loading...</strong>
+                    Money goes to: <strong id="displayNumber">Loading...</strong>
                 </p>
             </div>
 
             <div id="status" class="status"></div>
 
             <div class="info-box">
-                <h4>💡 Need Help?</h4>
-                <p>If QR scan doesn't work, customer can:</p>
+                <h4>💡 Alternative Method:</h4>
                 <p>Open M-PESA → Send Money → Enter <strong id="manualNumber">Loading...</strong> → Amount → PIN</p>
             </div>
         </div>
@@ -214,10 +213,10 @@
         // ============================================
         // YOUR PRIVATE NUMBER - CHANGE THIS!
         // ============================================
-        const YOUR_NUMBER = "254716081272";  // REPLACE WITH YOUR M-PESA NUMBER
-        const BUSINESS_NAME = "HOVERTECH DESIGNS";  // Your business name
+        const YOUR_NUMBER = "254716081217";  // REPLACE WITH YOUR M-PESA NUMBER
+        const YOUR_NAME = "Your Business Name";  // Your name that appears
         
-        // Display your number (customers see it for manual payment)
+        // Display your number
         document.getElementById('displayNumber').innerText = YOUR_NUMBER;
         document.getElementById('manualNumber').innerText = YOUR_NUMBER;
         
@@ -246,12 +245,13 @@
             qrContainer.classList.remove('show');
             statusDiv.style.display = 'none';
             
-            // Format for My Safaricom App - Direct to phone number
-            // This is the standard M-Pesa QR format
-            const qrData = `${BUSINESS_NAME}|${reference}|${amount}|${YOUR_NUMBER}|BG`;
+            // FORMAT FOR SEND MONEY (SM = Send Money)
+            // This tells M-PESA to use Send Money instead of Lipa Na M-PESA
+            const qrData = `${YOUR_NUMBER}|${amount}|${reference}|${YOUR_NAME}|SM`;
             
             console.log('QR Data:', qrData);
-            console.log('Payment goes to:', YOUR_NUMBER);
+            console.log('Send Money to:', YOUR_NUMBER);
+            console.log('Amount:', amount);
             
             const qrDiv = document.getElementById('qrcode');
             qrDiv.innerHTML = '';
@@ -267,7 +267,7 @@
             
             qrContainer.classList.add('show');
             
-            statusDiv.textContent = `✅ QR Ready! Customer pays KES ${amount} directly to your number`;
+            statusDiv.textContent = `✅ QR Ready! Customer sends KES ${amount} directly to your number`;
             statusDiv.className = 'status success';
             statusDiv.style.display = 'block';
             
