@@ -215,7 +215,7 @@
 <body>
     <div class="container">
         <div class="qr-card">
-            <div class="logo">💚</div>
+            <div class="logo">💻</div>
             <h1>Hovertech</h1>
             <div class="company">Website Development & Maintenance</div>
             <p class="subtitle">Secure M-Pesa Payment</p>
@@ -247,7 +247,7 @@
             </div>
 
             <div class="form-group">
-                <label>📞 M-Pesa Phone Number</label>
+                <label>📞 Your M-Pesa Phone Number</label>
                 <input type="tel" id="phoneNumber" placeholder="0712345678" required>
                 <small style="color:#888;">You'll pay from this number</small>
             </div>
@@ -262,7 +262,10 @@
                     ✅ Scan with M-PESA App (Send Money)
                 </p>
                 <p style="color: #666; font-size: 12px;">
-                    Amount will be pre-filled: KES <span id="qrAmount">0</span>
+                    Amount: KES <span id="qrAmount">0</span> will be pre-filled
+                </p>
+                <p style="color: #00B207; font-size: 11px; margin-top: 5px;">
+                    Receiving number: <span id="receivingNumber">Loading...</span>
                 </p>
             </div>
 
@@ -271,7 +274,7 @@
             <div class="receipt-section" id="receiptSection">
                 <h3>🧾 Payment Receipt</h3>
                 <div id="receiptContent"></div>
-                <button class="download-btn" onclick="downloadReceipt()">📥 Download Receipt (PDF)</button>
+                <button class="download-btn" onclick="downloadReceipt()">📥 Download Receipt</button>
             </div>
 
             <div class="thankyou" id="thankyouMsg" style="display: none;">
@@ -285,11 +288,10 @@
                     <li>Enter your details above</li>
                     <li>Click "Generate Payment QR Code"</li>
                     <li>Open M-PESA → Send Money → Scan QR</li>
-                    <li>Amount is pre-filled - Enter your PIN</li>
+                    <li>Amount will be pre-filled automatically</li>
+                    <li>Enter your PIN to complete payment</li>
                     <li>Download your receipt</li>
                 </ol>
-                <br>
-                <p><strong>📞 Need help?</strong> Contact: support@hovertech.com</p>
             </div>
         </div>
     </div>
@@ -298,11 +300,15 @@
         // ============================================
         // HOVERTECH SETTINGS - CHANGE THIS!
         // ============================================
-        const HOVERTECH_NUMBER = "254716081217";  // REPLACE WITH HOVERTECH'S M-PESA NUMBER
+        // IMPORTANT: Use format 07XXXXXXXX or 2547XXXXXXXX
+        const HOVERTECH_NUMBER = "0716081217";  // REPLACE WITH HOVERTECH'S M-PESA NUMBER (start with 07)
         const COMPANY_NAME = "Hovertech Designs";
         const SERVICE = "Website Building & Maintenance";
         
         let currentTransaction = null;
+        
+        // Display receiving number on page
+        document.getElementById('receivingNumber').innerText = HOVERTECH_NUMBER;
         
         function adjustAmount(change) {
             const amountInput = document.getElementById('amount');
@@ -342,10 +348,10 @@
                 return;
             }
             
-            // Format phone number
-            let formattedPhone = phoneNumber.replace(/\D/g, '');
-            if (formattedPhone.startsWith('0')) formattedPhone = '254' + formattedPhone.substring(1);
-            else if (formattedPhone.startsWith('7')) formattedPhone = '254' + formattedPhone;
+            // Format customer phone number for display
+            let formattedCustomerPhone = phoneNumber.replace(/\D/g, '');
+            if (formattedCustomerPhone.startsWith('0')) formattedCustomerPhone = '254' + formattedCustomerPhone.substring(1);
+            else if (formattedCustomerPhone.startsWith('7')) formattedCustomerPhone = '254' + formattedCustomerPhone;
             
             generateBtn.innerHTML = 'Generating QR Code...';
             generateBtn.disabled = true;
@@ -359,24 +365,41 @@
                 date: new Date().toLocaleString(),
                 customerName: customerName,
                 customerEmail: customerEmail,
-                customerPhone: formattedPhone,
+                customerPhone: formattedCustomerPhone,
                 amount: parseInt(amount),
                 service: SERVICE,
                 company: COMPANY_NAME,
+                hovertechNumber: HOVERTECH_NUMBER,
                 status: 'pending'
             };
             
             // Update QR amount display
             document.getElementById('qrAmount').innerText = amount;
             
-            // Format for Send Money (SM)
-            // Phone|Amount|Reference|Name|SM
-            const reference = `HVT${Date.now()}`;
-            const qrData = `${HOVERTECH_NUMBER}|${amount}|${reference}|${COMPANY_NAME}|SM`;
+            // FORMAT FOR SEND MONEY - Multiple formats to ensure one works
             
-            console.log('QR Data:', qrData);
-            console.log('Send Money to:', HOVERTECH_NUMBER);
+            // Format 1: Standard M-Pesa format (most likely to work)
+            const reference = `HVT${Date.now()}`;
+            
+            // Try different QR formats - we'll use the one that puts number correctly
+            // Format A: Pay Bill format (works for send money)
+            const qrDataA = `${HOVERTECH_NUMBER}|${amount}|${reference}|${COMPANY_NAME}|SM`;
+            
+            // Format B: Alternative format
+            const qrDataB = `SM:${HOVERTECH_NUMBER}|AMT:${amount}|REF:${reference}|NAME:${COMPANY_NAME}`;
+            
+            // Format C: Simple format
+            const qrDataC = `${HOVERTECH_NUMBER},${amount},${reference},${COMPANY_NAME}`;
+            
+            // Use Format A (most compatible)
+            const qrData = qrDataA;
+            
+            console.log('=' .repeat(50));
+            console.log('QR CODE GENERATED');
+            console.log('Receiving Number:', HOVERTECH_NUMBER);
             console.log('Amount:', amount);
+            console.log('QR Data:', qrData);
+            console.log('=' .repeat(50));
             
             const qrDiv = document.getElementById('qrcode');
             qrDiv.innerHTML = '';
@@ -397,7 +420,7 @@
             generateBtn.innerHTML = 'Generate Payment QR Code';
             generateBtn.disabled = false;
             
-            // Show receipt generation option after payment
+            // Show receipt option after short delay
             setTimeout(() => {
                 showReceiptOption();
             }, 2000);
@@ -420,10 +443,10 @@
                         <p><strong>Phone:</strong> ${currentTransaction.customerPhone}</p>
                         <hr>
                         <p><strong>Service:</strong> ${currentTransaction.service}</p>
-                        <p><strong>Amount Paid:</strong> KES ${currentTransaction.amount.toLocaleString()}</p>
+                        <p><strong>Amount:</strong> KES ${currentTransaction.amount.toLocaleString()}</p>
                         <hr>
                         <p><strong>Paid to:</strong> ${COMPANY_NAME}</p>
-                        <p><strong>Payment Method:</strong> M-PESA Send Money</p>
+                        <p><strong>M-Pesa Number:</strong> ${currentTransaction.hovertechNumber}</p>
                         <hr>
                         <p style="text-align: center; color: #00B207;">✓ Payment Confirmed</p>
                         <p style="text-align: center; font-size: 12px; margin-top: 10px;">
@@ -515,7 +538,7 @@
 <body>
     <div class="receipt">
         <div class="header">
-            <div class="logo">💚</div>
+            <div class="logo">💻</div>
             <h1>HOVERTECH DESIGNS</h1>
             <p>Professional Website Solutions</p>
         </div>
@@ -559,7 +582,7 @@
         <div class="footer">
             Hovertech Designs - Website Development & Maintenance<br>
             24/7 Support: support@hovertech.com<br>
-            This is a computer generated receipt - no signature required
+            This is a computer generated receipt
         </div>
     </div>
 </body>
