@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-Pesa Payment Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="payment-card">
+            <h1>💰 Payment Portal</h1>
+            <p>Enter your details to receive payment prompt</p>
+            
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" required placeholder="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber">M-Pesa Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" required 
+                           placeholder="0712345678 or 254712345678">
+                    <small>You'll receive a prompt on this number</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="invoiceNumber">Invoice Number</label>
+                    <input type="text" id="invoiceNumber" name="invoiceNumber" required 
+                           placeholder="INV-2024-001">
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount (KES)</label>
+                    <input type="number" id="amount" name="amount" required 
+                           placeholder="1000" min="10" step="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email (Optional)</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com">
+                </div>
+
+                <button type="submit" id="payButton">
+                    <span>💳 Pay Now</span>
+                    <div class="spinner hidden"></div>
+                </button>
+            </form>
+
+            <div id="statusMessage" class="status-message hidden"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
