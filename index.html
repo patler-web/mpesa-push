@@ -115,7 +115,7 @@
 
         <div class="form-group">
             <label>📞 Your M-Pesa Number</label>
-            <input type="tel" id="phone" placeholder="0716081217">
+            <input type="tel" id="phone" placeholder="0712345678">
             <small style="color:#888;">You'll receive a prompt on this number</small>
         </div>
 
@@ -162,8 +162,9 @@
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
-                    mode: 'no-cors',  // Required for Google Apps Script
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
                         phone: phone,
                         amount: parseInt(amount),
@@ -171,10 +172,20 @@
                     })
                 });
 
-                showStatus('✅ Payment prompt sent! Check your phone and enter your M-Pesa PIN.', 'success');
+                const result = await response.json();
+                console.log('Response from backend:', result);
+                
+                if (result.ResponseCode === '0') {
+                    showStatus('✅ Payment prompt sent! Check your phone and enter your M-Pesa PIN.', 'success');
+                } else if (result.error) {
+                    showStatus('❌ ' + result.error, 'error');
+                } else {
+                    showStatus('⚠️ ' + (result.ResponseDescription || 'Check your phone for the M-Pesa prompt'), 'info');
+                }
                 
             } catch (error) {
-                showStatus('❌ Error sending prompt. Please try again.', 'error');
+                console.error('Error:', error);
+                showStatus('❌ Error: ' + error.message, 'error');
             } finally {
                 setTimeout(() => {
                     payBtn.innerHTML = '💳 Pay Now';
