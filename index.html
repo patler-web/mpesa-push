@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>M-Pesa QR Code - Pay to Business</title>
+    <title>My Safaricom App - Direct Payment QR</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         * {
@@ -146,28 +146,31 @@
             color: #2e7d32;
             margin-bottom: 8px;
         }
-        .privacy-note {
-            background: #fff3cd;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 12px;
-            color: #856404;
-        }
-        .alternative {
+        .how-to {
             background: #e3f2fd;
             padding: 15px;
             border-radius: 12px;
             margin-top: 15px;
             font-size: 13px;
+            text-align: left;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="qr-card">
-            <h1>💚 M-PESA QR Code</h1>
-            <p class="subtitle">Scan to pay securely</p>
+            <h1>💚 My Safaricom Payment</h1>
+            <p class="subtitle">Scan QR code to pay directly</p>
+
+            <div class="how-to">
+                <strong>📱 How to pay with My Safaricom App:</strong><br>
+                1. Open <strong>My Safaricom App</strong><br>
+                2. Tap <strong>"M-PESA"</strong> → <strong>"Lipa Na M-PESA"</strong><br>
+                3. Tap <strong>"Scan QR Code"</strong><br>
+                4. Scan the QR code below<br>
+                5. Confirm amount and enter PIN<br>
+                6. Payment complete!
+            </div>
 
             <div class="amount-control">
                 <label>💰 Amount (KES)</label>
@@ -179,8 +182,8 @@
             </div>
 
             <div class="form-group">
-                <label>📝 Reference/Invoice Number</label>
-                <input type="text" id="reference" placeholder="e.g., INV-001">
+                <label>📝 Reference (Optional)</label>
+                <input type="text" id="reference" placeholder="e.g., Order #123">
             </div>
 
             <button onclick="generateQRCode()" id="generateBtn">
@@ -190,54 +193,33 @@
             <div class="qr-container" id="qrContainer">
                 <div id="qrcode"></div>
                 <p style="color: #00B207; font-weight: bold; margin-top: 10px;">
-                    ✅ Scan with M-PESA App
+                    ✅ Scan with My Safaricom App
+                </p>
+                <p style="color: #666; font-size: 12px; margin-top: 5px;">
+                    Payment goes directly to: <strong id="displayNumber">Loading...</strong>
                 </p>
             </div>
 
             <div id="status" class="status"></div>
 
-            <div class="alternative">
-                <strong>📱 Alternative Payment Methods:</strong><br><br>
-                <strong>Method 1:</strong> Open M-PESA → Lipa Na M-PESA → Buy Goods → Enter Till Number: <strong id="tillDisplay">...</strong><br><br>
-                <strong>Method 2:</strong> Open M-PESA → Send Money → Enter Phone Number: <strong id="phoneDisplay">...</strong>
-            </div>
-
             <div class="info-box">
-                <h4>📌 How to scan:</h4>
-                <ol style="margin-left: 20px;">
-                    <li>Open <strong>M-PESA App</strong></li>
-                    <li>Tap <strong>"Lipa Na M-PESA"</strong></li>
-                    <li>Tap <strong>"Scan QR Code"</strong></li>
-                    <li>Scan the QR code above</li>
-                    <li>Confirm amount and enter PIN</li>
-                </ol>
-            </div>
-
-            <div class="privacy-note">
-                🔒 <strong>Privacy Protected:</strong> Your personal phone number is hidden.
+                <h4>💡 Need Help?</h4>
+                <p>If QR scan doesn't work, customer can:</p>
+                <p>Open M-PESA → Send Money → Enter <strong id="manualNumber">Loading...</strong> → Amount → PIN</p>
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // YOUR PRIVATE SETTINGS
+        // YOUR PRIVATE NUMBER - CHANGE THIS!
         // ============================================
+        const YOUR_NUMBER = "254716081272";  // REPLACE WITH YOUR M-PESA NUMBER
+        const BUSINESS_NAME = "HOVERTECH DESIGNS";  // Your business name
         
-        // Your personal M-Pesa number (where money goes)
-        const YOUR_PRIVATE_NUMBER = "254716081272";  // <-- CHANGE THIS
-        
-        // Your business name
-        const YOUR_BUSINESS_NAME = "Hovertech Designs";
-        
-        // For Lipa Na M-PESA (if you have a Till number)
-        const YOUR_TILL_NUMBER = "123456";  // If you have a Till, add it here
-        
-        // ============================================
-        
-        // Update display
-        document.getElementById('phoneDisplay').innerText = YOUR_PRIVATE_NUMBER;
-        document.getElementById('tillDisplay').innerText = YOUR_TILL_NUMBER || "Use phone number above";
+        // Display your number (customers see it for manual payment)
+        document.getElementById('displayNumber').innerText = YOUR_NUMBER;
+        document.getElementById('manualNumber').innerText = YOUR_NUMBER;
         
         function adjustAmount(change) {
             const amountInput = document.getElementById('amount');
@@ -252,17 +234,11 @@
             const amount = document.getElementById('amount').value;
             let reference = document.getElementById('reference').value;
             const generateBtn = document.getElementById('generateBtn');
-            const statusDiv = document.getElementById('status');
             const qrContainer = document.getElementById('qrContainer');
+            const statusDiv = document.getElementById('status');
             
             if (!reference) {
-                reference = `INV${Date.now()}`;
-                document.getElementById('reference').value = reference;
-            }
-            
-            if (amount < 10) {
-                showStatus('Amount must be at least KES 10', 'error');
-                return;
+                reference = `PAY${Date.now()}`;
             }
             
             generateBtn.innerHTML = 'Generating QR Code...';
@@ -270,12 +246,12 @@
             qrContainer.classList.remove('show');
             statusDiv.style.display = 'none';
             
-            // Format 1: M-Pesa Standard Format (works with most scanners)
-            // This format is recognized by M-Pesa app
-            const qrData = `${YOUR_BUSINESS_NAME}\n${reference}\n${amount}\n${YOUR_PRIVATE_NUMBER}\nBG`;
+            // Format for My Safaricom App - Direct to phone number
+            // This is the standard M-Pesa QR format
+            const qrData = `${BUSINESS_NAME}|${reference}|${amount}|${YOUR_NUMBER}|BG`;
             
-            // Format 2: Alternative format (try this if first doesn't work)
-            // const qrData = `PAY:${YOUR_PRIVATE_NUMBER}|AMT:${amount}|REF:${reference}|NAME:${YOUR_BUSINESS_NAME}`;
+            console.log('QR Data:', qrData);
+            console.log('Payment goes to:', YOUR_NUMBER);
             
             const qrDiv = document.getElementById('qrcode');
             qrDiv.innerHTML = '';
@@ -290,23 +266,17 @@
             });
             
             qrContainer.classList.add('show');
-            showStatus(`✅ QR Code generated! Amount: KES ${amount}`, 'success');
+            
+            statusDiv.textContent = `✅ QR Ready! Customer pays KES ${amount} directly to your number`;
+            statusDiv.className = 'status success';
+            statusDiv.style.display = 'block';
             
             generateBtn.innerHTML = 'Generate QR Code';
             generateBtn.disabled = false;
             
-            console.log('QR Data:', qrData);
-            console.log('Money goes to:', YOUR_PRIVATE_NUMBER);
-        }
-        
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = `status ${type}`;
-            
             setTimeout(() => {
                 statusDiv.style.display = 'none';
-            }, 8000);
+            }, 5000);
         }
     </script>
 </body>
