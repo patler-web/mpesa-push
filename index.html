@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>QR Code Payment - Scan & Pay</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-Pesa Dynamic QR - Scan & Pay</title>
     <style>
         * {
             margin: 0;
@@ -13,17 +13,14 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
 
         .container {
-            max-width: 500px;
-            width: 100%;
+            max-width: 550px;
+            margin: 0 auto;
         }
 
         .qr-card {
@@ -34,9 +31,24 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: #00B207;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .logo span {
+            font-size: 40px;
+        }
+
         h1 {
-            font-size: 28px;
             color: #333;
+            font-size: 28px;
             margin-bottom: 10px;
         }
 
@@ -44,6 +56,59 @@
             color: #666;
             margin-bottom: 30px;
             font-size: 14px;
+        }
+
+        .amount-control {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .amount-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .amount-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .amount-input-group button {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            border: none;
+            background: #f0f0f0;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .amount-input-group button:active {
+            transform: scale(0.95);
+        }
+
+        #amount {
+            font-size: 32px;
+            font-weight: bold;
+            padding: 10px 20px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            width: 150px;
+        }
+
+        .merchant-info {
+            background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
         }
 
         .qr-container {
@@ -61,57 +126,111 @@
             margin: 0 auto;
         }
 
-        .qr-code {
+        .qr-placeholder {
             width: 250px;
             height: 250px;
-            background: white;
-            margin: 0 auto;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            color: #999;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: transform 0.2s;
+        }
+
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .instruction {
-            margin: 20px 0;
+            background: #f0f7ff;
             padding: 15px;
-            background: #f0f0ff;
             border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
         }
 
-        .instruction p {
+        .instruction h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #00B207;
+        }
+
+        .instruction ol {
+            margin-left: 20px;
             color: #555;
-            font-size: 14px;
+            font-size: 13px;
         }
 
-        .instruction strong {
-            color: #667eea;
+        .instruction li {
+            margin: 8px 0;
         }
 
-        .payment-link {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .payment-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .amount-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
+        .loading {
             display: inline-block;
-            margin: 15px 0;
-            font-weight: bold;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block;
         }
 
         @media (max-width: 600px) {
             .qr-card {
-                padding: 30px 20px;
+                padding: 25px 20px;
             }
             
-            #qrcode {
+            #qrcode, .qr-placeholder {
                 width: 200px;
                 height: 200px;
             }
@@ -121,57 +240,166 @@
 <body>
     <div class="container">
         <div class="qr-card">
-            <h1>📱 Scan to Pay</h1>
-            <p class="subtitle">Scan this QR code with your phone camera</p>
+            <div class="logo">
+                <span>💚</span>
+            </div>
+            <h1>M-PESA Dynamic QR</h1>
+            <p class="subtitle">Scan with M-PESA App to Pay</p>
             
-            <div class="amount-badge" id="amountDisplay">
-                KES 1,000
+            <div class="amount-control">
+                <div class="amount-label">💰 Enter Amount (KES)</div>
+                <div class="amount-input-group">
+                    <button onclick="adjustAmount(-100)">-100</button>
+                    <input type="number" id="amount" value="1000" step="100" min="10">
+                    <button onclick="adjustAmount(100)">+100</button>
+                </div>
             </div>
             
-            <div class="qr-container">
-                <div id="qrcode" class="qr-code"></div>
+            <div class="merchant-info">
+                <div>🏪 Merchant: Your Store Name</div>
+                <div>📱 Till Number: 123456</div>
             </div>
+            
+            <button class="generate-btn" onclick="generateQRCode()">
+                Generate QR Code
+            </button>
+            
+            <div id="qrDisplay" style="display: none;">
+                <div class="qr-container">
+                    <div id="qrcode" class="qr-placeholder">
+                        QR Code will appear here
+                    </div>
+                </div>
+            </div>
+            
+            <div id="statusMessage" class="status"></div>
             
             <div class="instruction">
-                <p>📸 <strong>How to pay:</strong></p>
-                <p>1. Scan QR code with your phone camera<br>
-                2. Enter your name and phone number<br>
-                3. You'll receive an M-Pesa prompt<br>
-                4. Enter your PIN to complete payment</p>
-            </div>
-            
-            <div class="payment-link">
-                <a href="#" id="directLink">🔗 Or click here to pay on this device</a>
+                <h3>📱 How to Pay:</h3>
+                <ol>
+                    <li>Open <strong>M-PESA App</strong> or <strong>My Safaricom App</strong></li>
+                    <li>Tap on <strong>"Lipa Na M-PESA"</strong> or <strong>"QR Code"</strong></li>
+                    <li>Scan the QR code above</li>
+                    <li>Confirm the amount and enter your PIN</li>
+                    <li>Done! Payment will be processed instantly</li>
+                </ol>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
-        // Get the current page URL for QR code
-        const currentUrl = window.location.href;
-        const paymentPageUrl = currentUrl.includes('index.html') 
-            ? currentUrl.replace('index.html', 'payment.html')
-            : currentUrl + 'payment.html';
+        let currentQRData = null;
+
+        function adjustAmount(change) {
+            const amountInput = document.getElementById('amount');
+            let newAmount = parseInt(amountInput.value) + change;
+            if (newAmount < 10) newAmount = 10;
+            if (newAmount > 150000) newAmount = 150000;
+            amountInput.value = newAmount;
+            // Hide QR when amount changes
+            document.getElementById('qrDisplay').style.display = 'none';
+            document.getElementById('statusMessage').style.display = 'none';
+        }
+
+        async function generateQRCode() {
+            const amount = document.getElementById('amount').value;
+            const generateBtn = document.querySelector('.generate-btn');
+            const originalText = generateBtn.innerHTML;
+            const statusDiv = document.getElementById('statusMessage');
+            
+            // Validate amount
+            if (amount < 10 || amount > 150000) {
+                showStatus('Amount must be between KES 10 and KES 150,000', 'error');
+                return;
+            }
+            
+            // Show loading
+            generateBtn.innerHTML = 'Generating QR Code <span class="loading"></span>';
+            generateBtn.disabled = true;
+            statusDiv.style.display = 'none';
+            
+            try {
+                // Call your backend to generate the QR code
+                const response = await fetch('/api/generate-qr', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: parseInt(amount),
+                        merchantName: "Your Store Name",
+                        invoiceNo: `INV-${Date.now()}`,
+                        trxCode: "BGC" // BGC = Buy Goods, BG = Bill Pay
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Display QR code
+                    displayQRCode(result.qrData);
+                    showStatus(`✅ QR Code generated successfully! Amount: KES ${amount}. Scan with M-PESA app.`, 'success');
+                } else {
+                    throw new Error(result.message || 'Failed to generate QR code');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                // Demo mode - show fake QR for testing
+                showDemoQRCode(amount);
+                showStatus(`⚠️ Demo Mode: In production, this would generate a real M-PESA QR code for KES ${amount}.`, 'info');
+            } finally {
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+            }
+        }
         
-        // Generate QR code that points to the payment page
-        new QRCode(document.getElementById("qrcode"), {
-            text: paymentPageUrl,
-            width: 250,
-            height: 250,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        function displayQRCode(qrData) {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = ''; // Clear previous
+            
+            // Use QRCode.js library to generate QR
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(qrContainer, {
+                    text: qrData,
+                    width: 250,
+                    height: 250,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                // Fallback
+                qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}" alt="QR Code">`;
+            }
+            
+            document.getElementById('qrDisplay').style.display = 'block';
+        }
         
-        // Update the direct link
-        document.getElementById('directLink').href = paymentPageUrl;
+        function showDemoQRCode(amount) {
+            // Create demo QR data (in real scenario, this comes from M-Pesa API)
+            const demoQRData = `LIPA NA M-PESA: Your Store Name|INV-${Date.now()}|${amount}|123456|BGC`;
+            displayQRCode(demoQRData);
+        }
         
-        // Optional: Add amount parameter if needed
-        const urlParams = new URLSearchParams(window.location.search);
-        const amount = urlParams.get('amount');
-        if (amount) {
-            document.getElementById('amountDisplay').innerHTML = `KES ${parseInt(amount).toLocaleString()}`;
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                if (statusDiv.className === `status ${type}`) {
+                    statusDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+        
+        // Load QRCode library dynamically
+        if (typeof QRCode === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+            document.head.appendChild(script);
         }
     </script>
 </body>
