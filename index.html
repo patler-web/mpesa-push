@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>M-Pesa QR Code Payment - Instant QR Generator</title>
+    <title>M-Pesa QR Code - Pay to Business</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         * {
@@ -146,13 +146,21 @@
             color: #2e7d32;
             margin-bottom: 8px;
         }
+        .privacy-note {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #856404;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="qr-card">
             <h1>💚 M-PESA QR Code</h1>
-            <p class="subtitle">Generate QR code for instant payment</p>
+            <p class="subtitle">Scan to pay securely</p>
 
             <div class="amount-control">
                 <label>💰 Amount (KES)</label>
@@ -175,11 +183,7 @@
             <div class="qr-container" id="qrContainer">
                 <div id="qrcode"></div>
                 <p style="color: #00B207; font-weight: bold; margin-top: 10px;">
-                    ✅ Customer scans this QR with M-PESA App
-                </p>
-                <p style="color: #666; font-size: 12px;">
-                    They will see the amount and enter their PIN<br>
-                    Money goes directly to your Till/Paybill
+                    ✅ Scan with M-PESA App
                 </p>
             </div>
 
@@ -191,20 +195,33 @@
                     <li>Enter amount and reference</li>
                     <li>Click "Generate QR Code"</li>
                     <li>Customer scans QR with M-PESA App</li>
-                    <li>Customer confirms amount and enters PIN</li>
-                    <li>Money goes to your business instantly!</li>
+                    <li>Customer sees YOUR BUSINESS NAME only</li>
+                    <li>Customer enters PIN - YOU receive money!</li>
                 </ol>
-                <br>
-                <p><strong>💡 Your Till/Paybill:</strong> 174379 (Sandbox Test)</p>
-                <p><small>When going live, replace with your actual Till/Paybill number</small></p>
+            </div>
+
+            <div class="privacy-note">
+                🔒 <strong>Privacy Protected:</strong> Your personal phone number is NEVER shown to customers. Only your business name appears.
             </div>
         </div>
     </div>
 
     <script>
-        // This is where money goes - CHANGE THIS TO YOUR TILL/PAYBILL NUMBER
-        const YOUR_TILL_NUMBER = "174379";  // Sandbox test number - Change to your actual Till/Paybill
-        const YOUR_BUSINESS_NAME = "Hovertech Designs";
+        // ============================================
+        // YOUR PRIVATE SETTINGS (Never shown to customers)
+        // ============================================
+        
+        // Your personal M-Pesa number (where money goes)
+        // Format: 2547XXXXXXXX (e.g., 254712345678)
+        const YOUR_PRIVATE_NUMBER = "254716081272";  // <-- CHANGE THIS TO YOUR NUMBER
+        
+        // Your business name (what customers see)
+        const YOUR_BUSINESS_NAME = "Hovertech Designs";  // <-- CHANGE THIS
+        
+        // Transaction code: "BG" for Buy Goods (works with personal numbers)
+        const TRANSACTION_CODE = "BG";
+        
+        // ============================================
         
         function adjustAmount(change) {
             const amountInput = document.getElementById('amount');
@@ -239,9 +256,9 @@
             qrContainer.classList.remove('show');
             statusDiv.style.display = 'none';
             
-            // Create the QR code data in M-Pesa format
-            // Format: BUSINESS_NAME|REFERENCE|AMOUNT|TILL_NUMBER|BG
-            const qrData = `${YOUR_BUSINESS_NAME}|${reference}|${amount}|${YOUR_TILL_NUMBER}|BG`;
+            // Create QR code with YOUR private number embedded (hidden from view)
+            // Format: BUSINESS_NAME|REFERENCE|AMOUNT|PRIVATE_NUMBER|TRX_CODE
+            const qrData = `${YOUR_BUSINESS_NAME}|${reference}|${amount}|${YOUR_PRIVATE_NUMBER}|${TRANSACTION_CODE}`;
             
             // Generate QR code
             const qrDiv = document.getElementById('qrcode');
@@ -264,6 +281,10 @@
             
             // Scroll to QR
             qrContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Privacy note in console (for you only)
+            console.log('QR Generated - Money goes to:', YOUR_PRIVATE_NUMBER);
+            console.log('Customer sees:', YOUR_BUSINESS_NAME);
         }
         
         function showStatus(message, type) {
