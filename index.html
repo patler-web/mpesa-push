@@ -2,76 +2,281 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M-Pesa QR - CORS Fixed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>M-Pesa QR Code Payment - Instant QR Generator</title>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        body { font-family: Arial; text-align: center; padding: 20px; background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%); }
-        .container { max-width: 500px; margin: 0 auto; background: white; border-radius: 30px; padding: 30px; }
-        input, button { padding: 12px; margin: 10px 0; width: 100%; border-radius: 8px; }
-        button { background: #00B207; color: white; font-weight: bold; cursor: pointer; }
-        .qr-box { margin: 20px 0; display: none; }
-        .debug { background: #1e1e1e; color: #0f0; padding: 10px; border-radius: 8px; font-size: 11px; text-align: left; margin-top: 20px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        .qr-card {
+            background: white;
+            border-radius: 30px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .amount-control {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+        .amount-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .amount-input-group button {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            border: none;
+            background: #00B207;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #amount {
+            font-size: 32px;
+            font-weight: bold;
+            padding: 10px 20px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            width: 150px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00B207 0%, #00A1E0 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .qr-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 20px;
+            display: none;
+        }
+        .qr-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            display: none;
+            font-size: 14px;
+        }
+        .status.success { background: #d4edda; color: #155724; display: block; }
+        .info-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 13px;
+            text-align: left;
+        }
+        .info-box h4 {
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>💚 M-PESA QR Payment</h1>
-    <input type="number" id="amount" placeholder="Amount (KES)" value="100">
-    <input type="text" id="reference" placeholder="Reference (optional)">
-    <button onclick="generateQR()">Generate QR Code</button>
-    <div class="qr-box" id="qrBox"><div id="qrcode"></div><p>Scan with M-Pesa app</p></div>
-    <div class="debug" id="debug">Ready...</div>
-</div>
-<script>
-    const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyDnrbcA1mcJ6XyJh2Wwk9LU3dNMuY6I_8azBOVAJs88xnpk3bnw_FrEySUrrMepZFRDw/exec';
-    
-    function debug(msg) {
-        const d = document.getElementById('debug');
-        d.innerHTML += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
-        d.scrollTop = d.scrollHeight;
-        console.log(msg);
-    }
-    
-    async function generateQR() {
-        const amount = document.getElementById('amount').value;
-        const reference = document.getElementById('reference').value || `INV-${Date.now()}`;
-        const btn = event.target;
+    <div class="container">
+        <div class="qr-card">
+            <h1>💚 M-PESA QR Code</h1>
+            <p class="subtitle">Generate QR code for instant payment</p>
+
+            <div class="amount-control">
+                <label>💰 Amount (KES)</label>
+                <div class="amount-input-group">
+                    <button onclick="adjustAmount(-100)">-100</button>
+                    <input type="number" id="amount" value="100" min="10" step="100">
+                    <button onclick="adjustAmount(100)">+100</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📝 Reference/Invoice Number</label>
+                <input type="text" id="reference" placeholder="e.g., INV-001 or Customer Name">
+            </div>
+
+            <button onclick="generateQRCode()" id="generateBtn">
+                Generate QR Code
+            </button>
+
+            <div class="qr-container" id="qrContainer">
+                <div id="qrcode"></div>
+                <p style="color: #00B207; font-weight: bold; margin-top: 10px;">
+                    ✅ Customer scans this QR with M-PESA App
+                </p>
+                <p style="color: #666; font-size: 12px;">
+                    They will see the amount and enter their PIN<br>
+                    Money goes directly to your Till/Paybill
+                </p>
+            </div>
+
+            <div id="status" class="status"></div>
+
+            <div class="info-box">
+                <h4>📌 How it works:</h4>
+                <ol style="margin-left: 20px;">
+                    <li>Enter amount and reference</li>
+                    <li>Click "Generate QR Code"</li>
+                    <li>Customer scans QR with M-PESA App</li>
+                    <li>Customer confirms amount and enters PIN</li>
+                    <li>Money goes to your business instantly!</li>
+                </ol>
+                <br>
+                <p><strong>💡 Your Till/Paybill:</strong> 174379 (Sandbox Test)</p>
+                <p><small>When going live, replace with your actual Till/Paybill number</small></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This is where money goes - CHANGE THIS TO YOUR TILL/PAYBILL NUMBER
+        const YOUR_TILL_NUMBER = "174379";  // Sandbox test number - Change to your actual Till/Paybill
+        const YOUR_BUSINESS_NAME = "Hovertech Designs";
         
-        debug(`Requesting QR for ${amount} KES`);
-        btn.disabled = true;
-        btn.textContent = 'Generating...';
-        
-        try {
-            // Try with no-cors mode first
-            const response = await fetch(BACKEND_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: parseInt(amount), reference: reference })
+        function adjustAmount(change) {
+            const amountInput = document.getElementById('amount');
+            let newAmount = parseInt(amountInput.value) + change;
+            if (newAmount < 10) newAmount = 10;
+            if (newAmount > 150000) newAmount = 150000;
+            amountInput.value = newAmount;
+            document.getElementById('qrContainer').classList.remove('show');
+        }
+
+        function generateQRCode() {
+            const amount = document.getElementById('amount').value;
+            let reference = document.getElementById('reference').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const statusDiv = document.getElementById('status');
+            const qrContainer = document.getElementById('qrContainer');
+            
+            // Generate reference if empty
+            if (!reference) {
+                reference = `PAY-${Date.now()}`;
+                document.getElementById('reference').value = reference;
+            }
+            
+            if (amount < 10) {
+                showStatus('Amount must be at least KES 10', 'error');
+                return;
+            }
+            
+            // Show loading
+            generateBtn.innerHTML = 'Generating QR Code...';
+            generateBtn.disabled = true;
+            qrContainer.classList.remove('show');
+            statusDiv.style.display = 'none';
+            
+            // Create the QR code data in M-Pesa format
+            // Format: BUSINESS_NAME|REFERENCE|AMOUNT|TILL_NUMBER|BG
+            const qrData = `${YOUR_BUSINESS_NAME}|${reference}|${amount}|${YOUR_TILL_NUMBER}|BG`;
+            
+            // Generate QR code
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+            
+            new QRCode(qrDiv, {
+                text: qrData,
+                width: 250,
+                height: 250,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
             });
             
-            debug('Request sent (no-cors mode)');
+            qrContainer.classList.add('show');
+            showStatus(`✅ QR Code generated! Amount: KES ${amount}`, 'success');
             
-            // Since no-cors doesn't give response, we'll simulate success
-            // In reality, you need to check the Apps Script logs
-            debug('⚠️ With no-cors, we cannot read the response');
-            debug('Check your Apps Script execution logs at script.google.com');
+            generateBtn.innerHTML = 'Generate QR Code';
+            generateBtn.disabled = false;
             
-            // Create a demo QR for testing
-            const demoData = `hovertech designs|${reference}|${amount}|174379|BG`;
-            document.getElementById('qrcode').innerHTML = '';
-            new QRCode(document.getElementById('qrcode'), { text: demoData, width: 250, height: 250 });
-            document.getElementById('qrBox').style.display = 'block';
-            debug('✅ Demo QR generated (check Apps Script logs for real QR)');
-            
-        } catch (err) {
-            debug(`❌ Error: ${err.message}`);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Generate QR Code';
+            // Scroll to QR
+            qrContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-    }
-</script>
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            
+            setTimeout(() => {
+                if (statusDiv.className === `status ${type}`) {
+                    statusDiv.style.display = 'none';
+                }
+            }, 8000);
+        }
+    </script>
 </body>
 </html>
