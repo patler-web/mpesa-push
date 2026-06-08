@@ -154,6 +154,13 @@
             font-size: 12px;
             color: #856404;
         }
+        .alternative {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -173,7 +180,7 @@
 
             <div class="form-group">
                 <label>📝 Reference/Invoice Number</label>
-                <input type="text" id="reference" placeholder="e.g., INV-001 or Customer Name">
+                <input type="text" id="reference" placeholder="e.g., INV-001">
             </div>
 
             <button onclick="generateQRCode()" id="generateBtn">
@@ -189,39 +196,48 @@
 
             <div id="status" class="status"></div>
 
+            <div class="alternative">
+                <strong>📱 Alternative Payment Methods:</strong><br><br>
+                <strong>Method 1:</strong> Open M-PESA → Lipa Na M-PESA → Buy Goods → Enter Till Number: <strong id="tillDisplay">...</strong><br><br>
+                <strong>Method 2:</strong> Open M-PESA → Send Money → Enter Phone Number: <strong id="phoneDisplay">...</strong>
+            </div>
+
             <div class="info-box">
-                <h4>📌 How it works:</h4>
+                <h4>📌 How to scan:</h4>
                 <ol style="margin-left: 20px;">
-                    <li>Enter amount and reference</li>
-                    <li>Click "Generate QR Code"</li>
-                    <li>Customer scans QR with M-PESA App</li>
-                    <li>Customer sees YOUR BUSINESS NAME only</li>
-                    <li>Customer enters PIN - YOU receive money!</li>
+                    <li>Open <strong>M-PESA App</strong></li>
+                    <li>Tap <strong>"Lipa Na M-PESA"</strong></li>
+                    <li>Tap <strong>"Scan QR Code"</strong></li>
+                    <li>Scan the QR code above</li>
+                    <li>Confirm amount and enter PIN</li>
                 </ol>
             </div>
 
             <div class="privacy-note">
-                🔒 <strong>Privacy Protected:</strong> Your personal phone number is NEVER shown to customers. Only your business name appears.
+                🔒 <strong>Privacy Protected:</strong> Your personal phone number is hidden.
             </div>
         </div>
     </div>
 
     <script>
         // ============================================
-        // YOUR PRIVATE SETTINGS (Never shown to customers)
+        // YOUR PRIVATE SETTINGS
         // ============================================
         
         // Your personal M-Pesa number (where money goes)
-        // Format: 2547XXXXXXXX (e.g., 254712345678)
-        const YOUR_PRIVATE_NUMBER = "254716081272";  // <-- CHANGE THIS TO YOUR NUMBER
+        const YOUR_PRIVATE_NUMBER = "254716081272";  // <-- CHANGE THIS
         
-        // Your business name (what customers see)
-        const YOUR_BUSINESS_NAME = "Hovertech Designs";  // <-- CHANGE THIS
+        // Your business name
+        const YOUR_BUSINESS_NAME = "Hovertech Designs";
         
-        // Transaction code: "BG" for Buy Goods (works with personal numbers)
-        const TRANSACTION_CODE = "BG";
+        // For Lipa Na M-PESA (if you have a Till number)
+        const YOUR_TILL_NUMBER = "123456";  // If you have a Till, add it here
         
         // ============================================
+        
+        // Update display
+        document.getElementById('phoneDisplay').innerText = YOUR_PRIVATE_NUMBER;
+        document.getElementById('tillDisplay').innerText = YOUR_TILL_NUMBER || "Use phone number above";
         
         function adjustAmount(change) {
             const amountInput = document.getElementById('amount');
@@ -239,9 +255,8 @@
             const statusDiv = document.getElementById('status');
             const qrContainer = document.getElementById('qrContainer');
             
-            // Generate reference if empty
             if (!reference) {
-                reference = `PAY-${Date.now()}`;
+                reference = `INV${Date.now()}`;
                 document.getElementById('reference').value = reference;
             }
             
@@ -250,24 +265,25 @@
                 return;
             }
             
-            // Show loading
             generateBtn.innerHTML = 'Generating QR Code...';
             generateBtn.disabled = true;
             qrContainer.classList.remove('show');
             statusDiv.style.display = 'none';
             
-            // Create QR code with YOUR private number embedded (hidden from view)
-            // Format: BUSINESS_NAME|REFERENCE|AMOUNT|PRIVATE_NUMBER|TRX_CODE
-            const qrData = `${YOUR_BUSINESS_NAME}|${reference}|${amount}|${YOUR_PRIVATE_NUMBER}|${TRANSACTION_CODE}`;
+            // Format 1: M-Pesa Standard Format (works with most scanners)
+            // This format is recognized by M-Pesa app
+            const qrData = `${YOUR_BUSINESS_NAME}\n${reference}\n${amount}\n${YOUR_PRIVATE_NUMBER}\nBG`;
             
-            // Generate QR code
+            // Format 2: Alternative format (try this if first doesn't work)
+            // const qrData = `PAY:${YOUR_PRIVATE_NUMBER}|AMT:${amount}|REF:${reference}|NAME:${YOUR_BUSINESS_NAME}`;
+            
             const qrDiv = document.getElementById('qrcode');
             qrDiv.innerHTML = '';
             
             new QRCode(qrDiv, {
                 text: qrData,
-                width: 250,
-                height: 250,
+                width: 280,
+                height: 280,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
@@ -279,12 +295,8 @@
             generateBtn.innerHTML = 'Generate QR Code';
             generateBtn.disabled = false;
             
-            // Scroll to QR
-            qrContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            
-            // Privacy note in console (for you only)
-            console.log('QR Generated - Money goes to:', YOUR_PRIVATE_NUMBER);
-            console.log('Customer sees:', YOUR_BUSINESS_NAME);
+            console.log('QR Data:', qrData);
+            console.log('Money goes to:', YOUR_PRIVATE_NUMBER);
         }
         
         function showStatus(message, type) {
@@ -293,9 +305,7 @@
             statusDiv.className = `status ${type}`;
             
             setTimeout(() => {
-                if (statusDiv.className === `status ${type}`) {
-                    statusDiv.style.display = 'none';
-                }
+                statusDiv.style.display = 'none';
             }, 8000);
         }
     </script>
